@@ -29,10 +29,11 @@ module F2ynab
         INTEREST_CHARGE
       ]
 
-      def initialize(ynab_client, webhook, skip_foreign_currency_flag: false)
+      def initialize(ynab_client, webhook, skip_foreign_currency_flag: false, omit_import_id: false)
         @webhook = webhook
         @ynab_client = ynab_client
         @skip_foreign_currency_flag = skip_foreign_currency_flag
+        @omit_import_id = omit_import_id
       end
 
       def import
@@ -54,7 +55,7 @@ module F2ynab
 
         ::F2ynab::YNAB::TransactionCreator.new(
           @ynab_client,
-          id: "S:#{@webhook[:content][:transactionUid]}",
+          id: @omit_import_id ? nil : "S:#{@webhook[:content][:transactionUid]}",
           date: Time.parse(@webhook[:timestamp]).to_date,
           amount: amount,
           payee_name: payee_name,

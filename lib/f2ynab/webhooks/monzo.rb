@@ -1,12 +1,13 @@
 module F2ynab
   module Webhooks
     class Monzo
-      def initialize(ynab_client, webhook, skip_tags: false, skip_foreign_currency_flag: false, skip_emoji: false)
+      def initialize(ynab_client, webhook, skip_tags: false, skip_foreign_currency_flag: false, skip_emoji: false, omit_import_id: false)
         @ynab_client = ynab_client
         @webhook = webhook
         @skip_tags = skip_tags
         @skip_foreign_currency_flag = skip_foreign_currency_flag
         @skip_emoji = skip_emoji
+        @omit_import_id = omit_import_id
       end
 
       def import
@@ -44,7 +45,7 @@ module F2ynab
 
         ::F2ynab::YNAB::TransactionCreator.new(
           @ynab_client,
-          id: @webhook[:data][:id],
+          id: @omit_import_id ? nil : @webhook[:data][:id],
           date: Time.parse(@webhook[:data][:created]).to_date,
           amount: @webhook[:data][:amount] * 10,
           payee_name: payee_name,
