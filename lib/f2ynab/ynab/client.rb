@@ -28,19 +28,21 @@ module F2ynab
       end
 
       def create_transaction(id: nil, payee_id: nil, payee_name: nil, amount: nil, cleared: nil, date: nil, memo: nil, flag: nil)
+        transaction_params = {
+          account_id: selected_account_id,
+          date: date.to_s,
+          amount: amount,
+          payee_id: payee_id,
+          payee_name: payee_name,
+          cleared: cleared ? "Cleared" : 'Uncleared',
+          memo: memo,
+          flag_color: flag,
+        }
+        transaction_params[:import_id] = id unless id.nil? || id.empty?
+
         client.transactions.create_transaction(
           selected_budget_id,
-          transaction: {
-            account_id: selected_account_id,
-            date: date.to_s,
-            amount: amount,
-            payee_id: payee_id,
-            payee_name: payee_name,
-            cleared: cleared ? "Cleared" : 'Uncleared',
-            memo: memo,
-            flag_color: flag,
-            import_id: id,
-          },
+          transaction: transaction_params,
         ).data.transaction
       rescue StandardError => e
         Rails.logger.error('YNAB::Client.create_transaction failure')
